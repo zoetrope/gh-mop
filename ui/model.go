@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"github.com/charmbracelet/bubbles/textinput"
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -8,9 +9,10 @@ import (
 
 var (
 	commandViewStyle = lipgloss.NewStyle().
-				PaddingRight(1).
-				MarginRight(1).
-				Border(lipgloss.RoundedBorder(), false, true, false, false)
+				Border(lipgloss.RoundedBorder()).
+				BorderForeground(lipgloss.Color("62")).
+				MarginTop(2).
+				PaddingRight(2)
 
 	statusBarStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.AdaptiveColor{Light: "#343433", Dark: "#C1C6B2"}).
@@ -20,10 +22,14 @@ var (
 type Model struct {
 	width, height     int
 	operationViewport viewport.Model
+	command           textinput.Model
 }
 
 func InitialModel() (*Model, error) {
-	return &Model{}, nil
+	c := newCommandModel()
+	return &Model{
+		command: c,
+	}, nil
 }
 
 func (m Model) Init() tea.Cmd {
@@ -31,15 +37,18 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
-		default:
-			var cmd tea.Cmd
+		case "ctrl+u", "ctrl+d":
 			m.operationViewport, cmd = m.operationViewport.Update(msg)
 			return m, cmd
+			//default:
+			//	m.operationViewport, cmd = m.operationViewport.Update(msg)
+			//	return m, cmd
 		}
 
 	case tea.WindowSizeMsg:
@@ -48,7 +57,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.operationViewport = vp
 
 	}
-	return m, nil
+
+	m.command, cmd = m.command.Update(msg)
+	return m, cmd
 }
 func (m Model) View() string {
 	return lipgloss.JoinVertical(lipgloss.Left,
@@ -57,7 +68,8 @@ func (m Model) View() string {
 	)
 }
 func (m Model) commandView() string {
-	return commandViewStyle.Width(m.width / 2).Height(m.height).Render("list view")
+	return commandViewStyle.Width(m.width/2-2).Height(m.height-4).Render("Please enter a command", m.command.View())
+	//return "Please enter a command\n" + m.command.View()
 }
 
 func (m Model) operationView() string {
@@ -65,7 +77,7 @@ func (m Model) operationView() string {
 }
 
 func (m Model) helpView() string {
-	return helpStyle("\n  ↑/↓: Navigate\n")
+	return helpStyle("\n  Up: ctrl+u, Down: ctrl+d\n")
 }
 func (m Model) statusView() string {
 	return statusBarStyle.Width(m.width).Render("status")
