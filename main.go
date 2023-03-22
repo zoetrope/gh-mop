@@ -1,6 +1,6 @@
 package main
 
-import "github.com/zoetrope/mop/cmd"
+import "github.com/zoetrope/gh-mop/cmd"
 
 func main() {
 	cmd.Execute()

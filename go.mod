@@ -1,4 +1,4 @@
-module github.com/zoetrope/mop
+module github.com/zoetrope/gh-mop
 
 go 1.20
 
