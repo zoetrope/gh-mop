@@ -1,11 +1,10 @@
-/*
-Copyright © 2023 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
+	"fmt"
 	"os"
 
+	"github.com/cli/go-gh"
 	"github.com/spf13/cobra"
 )
 
@@ -21,7 +20,21 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("hi world, this is the gh-mop extension!")
+		client, err := gh.RESTClient(nil)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		response := struct{ Login string }{}
+		err = client.Get("user", &response)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Printf("running as %s\n", response.Login)
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
