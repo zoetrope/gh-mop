@@ -5,6 +5,7 @@ go 1.20
 require (
 	github.com/cli/go-gh v1.2.1
 	github.com/spf13/cobra v1.6.1
+	github.com/yuin/goldmark v1.4.4
 )
 
 require (
