@@ -6,7 +6,11 @@ import (
 
 	"github.com/cli/go-gh"
 	"github.com/spf13/cobra"
+	"github.com/zoetrope/gh-mop/config"
 )
+
+var configPath string
+var mopConfig *config.Config
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -35,6 +39,18 @@ to quickly create a Cobra application.`,
 		}
 		fmt.Printf("running as %s\n", response.Login)
 	},
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		var err error
+		if configPath == "" {
+			home, err := os.UserHomeDir()
+			if err != nil {
+				return err
+			}
+			configPath = home + "/.mop.json"
+		}
+		mopConfig, err = config.LoadConfig(configPath)
+		return err
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -47,13 +63,5 @@ func Execute() {
 }
 
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.mop.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().StringVarP(&configPath, "config", "c", "", "config file (default is $HOME/.mop.json)")
 }

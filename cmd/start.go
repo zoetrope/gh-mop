@@ -6,15 +6,9 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/zoetrope/gh-mop/config"
-
 	"github.com/spf13/cobra"
 	"github.com/zoetrope/gh-mop/parser"
 )
-
-var startOpts struct {
-	configPath string
-}
 
 // startCmd represents the start command
 var startCmd = &cobra.Command{
@@ -28,15 +22,11 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := config.LoadConfig(startOpts.configPath)
-		if err != nil {
-			return err
-		}
 		issue, err := strconv.Atoi(args[0])
 		if err != nil {
 			return err
 		}
-		op, err := parser.GetOperation(cfg.Repository, issue)
+		op, err := parser.GetOperation(mopConfig.Owner, mopConfig.Repository, issue)
 		if err != nil {
 			return err
 		}
@@ -44,7 +34,7 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			return err
 		}
-		opDir := filepath.Join(cfg.DataDir, args[0])
+		opDir := filepath.Join(mopConfig.DataDir, mopConfig.Repository, args[0])
 		err = os.MkdirAll(opDir, 0755)
 		if err != nil {
 			return err
@@ -58,7 +48,4 @@ to quickly create a Cobra application.`,
 
 func init() {
 	rootCmd.AddCommand(startCmd)
-
-	fs := startCmd.Flags()
-	fs.StringVarP(&startOpts.configPath, "config", "c", "config.json", "config file path")
 }

@@ -34,13 +34,13 @@ func LoadOperation(filepath string) (*Operation, error) {
 	return op, nil
 }
 
-func GetOperation(repo string, issue int) (*Operation, error) {
+func GetOperation(owner, repo string, issue int) (*Operation, error) {
 	client, err := gh.RESTClient(nil)
 	if err != nil {
 		return nil, err
 	}
 	response := &Operation{}
-	err = client.Get(fmt.Sprintf("repos/%s/issues/%d", repo, issue), &response)
+	err = client.Get(fmt.Sprintf("repos/%s/%s/issues/%d", owner, repo, issue), &response)
 	if err != nil {
 		return nil, err
 	}

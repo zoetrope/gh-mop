@@ -1,5 +1,8 @@
 #!/bin/bash
 
+GH_MOP="go run main.go --config=config.json"
+# GH_MOP="gh mop"
+
 # Fetch open issues from the repository.
 function mop-issues() {
   echo "issues"
@@ -18,15 +21,17 @@ function mop-start() {
     return 1
   fi
 
-  export MOP_REPO="mop"
+  export MOP_REPO=$(cat config.json | jq -r .repository)
+  export MOP_DATADIR=$(cat config.json | jq -r .datadir)
   export MOP_ISSUE=$1
   export MOP_STEP=0
 
-  script -q -f -a /tmp/mop/${MOP_ISSUE}/typescript
+  $GH_MOP start $MOP_ISSUE
+  script -q -f -a ${MOP_DATADIR}/${MOP_REPO}/${MOP_ISSUE}/typescript
 }
 
 if [ -n "$MOP_ISSUE" ]; then
-  export PS1="[\${MOP_REPO} OP#\${MOP_ISSUE}:STEP\${MOP_STEP}]$ "
+  export PS1="[\${MOP_REPO}#\${MOP_ISSUE}:Step\${MOP_STEP}]$ "
   # Move to the next step in the operation.
   function next() {
     MOP_STEP=$(($MOP_STEP + 1))
@@ -39,7 +44,7 @@ if [ -n "$MOP_ISSUE" ]; then
 
   # Insert a command into the current line.
   function insert() {
-    local command=$(go run main.go next $MOP_ISSUE $MOP_STEP)
+    local command=$($GH_MOP next $MOP_ISSUE $MOP_STEP)
     READLINE_LINE="$command"
     let READLINE_POINT+=${#command}
   }

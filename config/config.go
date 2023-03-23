@@ -6,10 +6,12 @@ import (
 )
 
 type Config struct {
-	// Repository is the repository name in OWNER/REPO format
+	// Owner is the owner name of the repository
+	Owner string `json:"owner"`
+	// Repository is the repository name
 	Repository string `json:"repository"`
-	// Snippet is the issue number of the snippet
-	Snippet int `json:"snippet"`
+	// Utilities is the issue number of utilities
+	Utilities int `json:"utilities"`
 	// DataDir is the directory to store data
 	DataDir string `json:"datadir"`
 }

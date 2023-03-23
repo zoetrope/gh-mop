@@ -1,5 +1,6 @@
 {
-  "repository": "zoetrope/gh-mop",
-  "snippet": 4,
+  "owner": "zoetrope",
+  "repository": "gh-mop",
+  "utilities": 4,
   "datadir": "/tmp/mop"
 }

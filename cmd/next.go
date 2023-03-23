@@ -6,13 +6,8 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
-	"github.com/zoetrope/gh-mop/config"
 	"github.com/zoetrope/gh-mop/parser"
 )
-
-var nextOpts struct {
-	configPath string
-}
 
 // nextCmd represents the next command
 var nextCmd = &cobra.Command{
@@ -26,11 +21,7 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Args: cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cfg, err := config.LoadConfig(startOpts.configPath)
-		if err != nil {
-			return err
-		}
-		opDir := filepath.Join(cfg.DataDir, args[0])
+		opDir := filepath.Join(mopConfig.DataDir, mopConfig.Repository, args[0])
 		op, err := parser.LoadOperation(filepath.Join(opDir, "operation.json"))
 		if err != nil {
 			return err
@@ -44,6 +35,4 @@ to quickly create a Cobra application.`,
 
 func init() {
 	rootCmd.AddCommand(nextCmd)
-	fs := nextCmd.Flags()
-	fs.StringVarP(&nextOpts.configPath, "config", "c", "config.json", "config file path")
 }
