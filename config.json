@@ -1,4 +1,5 @@
 {
-  "repository": "https://github.com/zoetrope/mop",
-  "snippet": "4"
+  "repository": "zoetrope/gh-mop",
+  "snippet": 4,
+  "datadir": "/tmp/mop"
 }

@@ -20,9 +20,9 @@ function mop-start() {
 
   export MOP_REPO="mop"
   export MOP_ISSUE=$1
-  export MOP_STEP=1
+  export MOP_STEP=0
 
-  script -q -f -a /tmp/mop.log
+  script -q -f -a /tmp/mop/${MOP_ISSUE}/typescript
 }
 
 if [ -n "$MOP_ISSUE" ]; then
@@ -39,7 +39,7 @@ if [ -n "$MOP_ISSUE" ]; then
 
   # Insert a command into the current line.
   function insert() {
-    local command="next command"
+    local command=$(go run main.go next $MOP_ISSUE $MOP_STEP)
     READLINE_LINE="$command"
     let READLINE_POINT+=${#command}
   }

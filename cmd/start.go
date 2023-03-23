@@ -1,18 +1,20 @@
 package cmd
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
+	"os"
+	"path/filepath"
+	"strconv"
 
-	"github.com/cli/go-gh"
+	"github.com/zoetrope/gh-mop/config"
+
 	"github.com/spf13/cobra"
-	"github.com/yuin/goldmark"
-	"github.com/yuin/goldmark/ast"
-	"github.com/yuin/goldmark/extension"
-	"github.com/yuin/goldmark/parser"
-	"github.com/yuin/goldmark/text"
+	"github.com/zoetrope/gh-mop/parser"
 )
+
+var startOpts struct {
+	configPath string
+}
 
 // startCmd represents the start command
 var startCmd = &cobra.Command{
@@ -24,55 +26,39 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
+	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		stdOut, stdErr, err := gh.Exec("issue", "view", "1", "--json", "body")
-		if err != nil {
-			fmt.Println(stdErr.String())
-			return err
-		}
-
-		issue := struct{ Body string }{}
-		err = json.Unmarshal(stdOut.Bytes(), &issue)
+		cfg, err := config.LoadConfig(startOpts.configPath)
 		if err != nil {
 			return err
 		}
-
-		//fmt.Println(issue.Body)
-
-		return parseMarkdown(([]byte)(issue.Body))
+		issue, err := strconv.Atoi(args[0])
+		if err != nil {
+			return err
+		}
+		op, err := parser.GetOperation(cfg.Repository, issue)
+		if err != nil {
+			return err
+		}
+		out, err := json.Marshal(op)
+		if err != nil {
+			return err
+		}
+		opDir := filepath.Join(cfg.DataDir, args[0])
+		err = os.MkdirAll(opDir, 0755)
+		if err != nil {
+			return err
+		}
+		err = os.WriteFile(filepath.Join(opDir, "operation.json"), out, 0644)
+		return err
 	},
 }
 
 // parseMarkdown parses the markdown string and returns a list of tasks
-func parseMarkdown(source []byte) error {
-	md := goldmark.New(
-		goldmark.WithExtensions(extension.GFM),
-		goldmark.WithParserOptions(
-			parser.WithAutoHeadingID(),
-		),
-	)
-
-	var codeBlocks []string
-	err := ast.Walk(md.Parser().Parse(text.NewReader(source)), func(n ast.Node, entering bool) (ast.WalkStatus, error) {
-		if entering {
-			if n.Kind() == ast.KindFencedCodeBlock {
-				codeBlock := n.(*ast.FencedCodeBlock)
-				start := codeBlock.Lines().At(0).Start
-				end := codeBlock.Lines().At(codeBlock.Lines().Len() - 1).Stop
-				code := bytes.TrimSpace(source[start:end])
-				codeBlocks = append(codeBlocks, string(code))
-			}
-		}
-		return ast.WalkContinue, nil
-	})
-	fmt.Println("CodeBlocks:")
-	for i, codeBlock := range codeBlocks {
-		fmt.Printf("[%d] %s\n\n", i+1, codeBlock)
-	}
-
-	return err
-}
 
 func init() {
 	rootCmd.AddCommand(startCmd)
+
+	fs := startCmd.Flags()
+	fs.StringVarP(&startOpts.configPath, "config", "c", "config.json", "config file path")
 }
