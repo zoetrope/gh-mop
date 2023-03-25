@@ -34,6 +34,10 @@ func LoadOperation(filepath string) (*Operation, error) {
 	return op, nil
 }
 
+func SaveOperation() {
+
+}
+
 func GetOperation(owner, repo string, issue int) (*Operation, error) {
 	client, err := gh.RESTClient(nil)
 	if err != nil {
@@ -45,7 +49,7 @@ func GetOperation(owner, repo string, issue int) (*Operation, error) {
 		return nil, err
 	}
 
-	commands, err := ParseMarkdown(([]byte)(response.Body))
+	commands, err := getCommands(([]byte)(response.Body))
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +59,7 @@ func GetOperation(owner, repo string, issue int) (*Operation, error) {
 
 var lineRegex = regexp.MustCompile("\r\n|\n")
 
-func ParseMarkdown(source []byte) ([]string, error) {
+func getCommands(source []byte) ([]string, error) {
 	md := goldmark.New(
 		goldmark.WithExtensions(extension.GFM),
 		goldmark.WithParserOptions(
