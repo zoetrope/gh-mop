@@ -56,7 +56,8 @@ Create a configuration file as shown below and save it as $HOME/.mop.json.
 
 ## Getting Started
 
-1. Create an Issue: Define the operations in a new GitHub Issue for your repository.
+1. Login to GitHub: Run `gh auth login` command to login to GitHub.
+2. Create an Issue: Define the operations in a new GitHub Issue for your repository (e.g. #1).
 Here is an example of the content format. Write the manual operations you want to execute within the code block:
 
 ````markdown
@@ -76,7 +77,7 @@ $ kubectl get svc -n default \
 ```
 ````
 
-2. Start the Operation: In bash, run `mop-start` command with the number of the Issue you created:
+3. Start the Operation: In bash, run `mop-start` command with the number of the Issue you created:
 
 ```markdown
 $ mop-start 1
@@ -88,13 +89,13 @@ The prompt will change to the format `[repository_name#issue_number:Step_number]
 [gh-mop#1:Step0]$ 
 ```
 
-3. Execute Commands: Press `Ctrl+t` shortcut to complete the first command to be executed:
+4. Execute Commands: Press `Ctrl+t` shortcut to complete the first command to be executed:
 
 ```markdown
 [gh-mop#1:Step0]$ kubectl get pod
 ```
 
-4. Execute the command, run `next` command, and press `Ctrl+t` again. The next command will be completed:
+5. Execute the command, run `next` command, and press `Ctrl+t` again. The next command will be completed:
 
 ```markdown
 [gh-mop#1:Step0]$ next
@@ -103,7 +104,7 @@ The prompt will change to the format `[repository_name#issue_number:Step_number]
 
 Repeat this process until the operation is complete.
 
-5. Upload Results: When the operation is complete, execute `upload` command:
+6. Upload Results: When the operation is complete, execute `upload` command:
 
 ```markdown
 [gh-mop#1:Step2]$ upload
@@ -128,6 +129,6 @@ ref #5
 mop provides a convenient feature to search and complete predefined utility commands, which allows you to quickly access and execute frequently-used commands during manual operations.
 To use this feature, follow these steps:
 
-1. Create a Utility Issue: In your GitHub repository, create an Issue dedicated to utility commands. Define the utility commands in this Issue using the same format as regular operations.
+1. Create a Utility Issue: In your GitHub repository, create an Issue dedicated to utility commands (e.g. #5). Define the utility commands in this Issue using the same format as regular operations.
 2. Update Configuration: Open your `.mop.json` configuration file and set the `utilities` field to the number of the Utility Issue you created. This will let mop know where to find the utility commands.
 3. Search and Complete: While working on a manual operation, press the `Ctrl+o` shortcut to initiate a search for the predefined utility commands. Upon selecting a command from the list, it will be automatically completed in your current console, ready for execution.

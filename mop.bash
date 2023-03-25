@@ -47,7 +47,8 @@ if [ -n "$MOP_ISSUE" ]; then
   # Upload the results of executed commands.
   # The result is uploaded to the issue's comment.
   function upload() {
-    cat ${MOP_DATADIR}/${MOP_REPO}/${MOP_ISSUE}/typescript.txt  | ansi2txt | col -b
+#    cat ${MOP_DATADIR}/${MOP_REPO}/${MOP_ISSUE}/typescript.txt  | ansi2txt | col -b
+    $GH_MOP upload $MOP_ISSUE
   }
 
   # List the commands in the current operation.
