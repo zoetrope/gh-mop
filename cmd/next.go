@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
-	"github.com/zoetrope/gh-mop/parser"
+	"github.com/zoetrope/gh-mop/core"
 )
 
 // nextCmd represents the next command
@@ -22,7 +22,7 @@ to quickly create a Cobra application.`,
 	Args: cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		opDir := filepath.Join(mopConfig.DataDir, mopConfig.Repository, args[0])
-		op, err := parser.LoadOperation(filepath.Join(opDir, "operation.json"))
+		op, err := core.LoadOperation(filepath.Join(opDir, "operation.json"))
 		if err != nil {
 			return err
 		}

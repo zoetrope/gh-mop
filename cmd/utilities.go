@@ -8,7 +8,7 @@ import (
 	"github.com/cli/go-gh/pkg/markdown"
 	"github.com/ktr0731/go-fuzzyfinder"
 	"github.com/spf13/cobra"
-	"github.com/zoetrope/gh-mop/parser"
+	"github.com/zoetrope/gh-mop/core"
 )
 
 // utilitiesCmd represents the utilities command
@@ -22,7 +22,7 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		utilities, err := parser.GetUtilities(mopConfig.Owner, mopConfig.Repository, mopConfig.Utilities)
+		utilities, err := core.GetUtilities(mopConfig.Owner, mopConfig.Repository, mopConfig.Utilities)
 		if err != nil {
 			return err
 		}

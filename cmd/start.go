@@ -7,12 +7,12 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
-	"github.com/zoetrope/gh-mop/parser"
+	"github.com/zoetrope/gh-mop/core"
 )
 
 // startCmd represents the start command
 var startCmd = &cobra.Command{
-	Use:   "start",
+	Use:   "start ISSUE_NUMBER",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -26,7 +26,7 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			return err
 		}
-		op, err := parser.GetOperation(mopConfig.Owner, mopConfig.Repository, issue)
+		op, err := core.GetOperation(mopConfig.Owner, mopConfig.Repository, issue)
 		if err != nil {
 			return err
 		}

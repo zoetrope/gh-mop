@@ -5,7 +5,7 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
-	"github.com/zoetrope/gh-mop/upload"
+	"github.com/zoetrope/gh-mop/core"
 )
 
 // uploadCmd represents the upload command
@@ -23,7 +23,7 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			return err
 		}
-		return upload.UploadResult(mopConfig.Owner, mopConfig.Repository, issue,
+		return core.UploadResult(mopConfig.Owner, mopConfig.Repository, issue,
 			fmt.Sprintf("%s/%s/%d/typescript.txt", mopConfig.DataDir, mopConfig.Repository, issue))
 	},
 }

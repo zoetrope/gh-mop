@@ -1,4 +1,4 @@
-package upload
+package core
 
 import (
 	"bytes"
@@ -45,9 +45,12 @@ func UploadResult(owner, repo string, issue int, filepath string) error {
 	}{
 		Body: comment,
 	}
+	var response = struct {
+		URL string `json:"html_url"`
+	}{}
 	j, err := json.Marshal(body)
 	r := bytes.NewReader(j)
-	err = client.Post(fmt.Sprintf("repos/%s/%s/issues/%d/comments", owner, repo, issue), r, nil)
+	err = client.Post(fmt.Sprintf("repos/%s/%s/issues/%d/comments", owner, repo, issue), r, &response)
 	if err != nil {
 		return err
 	}
