@@ -10,16 +10,21 @@ import (
 	"github.com/zoetrope/gh-mop/core"
 )
 
-// startCmd represents the start command
-var startCmd = &cobra.Command{
-	Use:   "start ISSUE_NUMBER",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+// operationCmd represents the operation command
+var operationCmd = &cobra.Command{
+	Use:   "operation ISSUE_NUMBER",
+	Short: "Fetch and save operation data from Issue",
+	Long: `Fetches operation information from the specified Issue and saves it to a local directory.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Arguments:
+  ISSUE_NUMBER: Issue number defining an operation on GitHub
+
+Examples:
+  $ mop operation 1
+
+Constraints: 
+  Must be executed before running "mop command" or "mop upload" commands.
+`,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		issue, err := strconv.Atoi(args[0])
@@ -44,8 +49,6 @@ to quickly create a Cobra application.`,
 	},
 }
 
-// parseMarkdown parses the markdown string and returns a list of tasks
-
 func init() {
-	rootCmd.AddCommand(startCmd)
+	rootCmd.AddCommand(operationCmd)
 }

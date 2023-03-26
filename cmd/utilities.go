@@ -14,13 +14,21 @@ import (
 // utilitiesCmd represents the utilities command
 var utilitiesCmd = &cobra.Command{
 	Use:   "utilities",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Search and return useful commands from Issues",
+	Long: `Search and return useful commands defined in the utilities GitHub Issues using fuzzy search like fzf.
+Detailed explanations can be displayed during the search process.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Arguments:
+  None
+
+Examples:
+  $ mop utilities
+
+Constraints:
+  Prepare the utilities GitHub Issues in advance.
+  Define the Issue number for the utilities in the configuration file.
+  No need to execute "mop start" before using this command.
+`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		utilities, err := core.GetUtilities(mopConfig.Owner, mopConfig.Repository, mopConfig.Utilities)
 		if err != nil {

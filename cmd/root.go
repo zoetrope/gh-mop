@@ -13,11 +13,12 @@ var mopConfig *config.Config
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "mop",
-	Short: "mop is a tool for managing manual operations",
-	Long: `mop is a tool for managing manual operations using GitHub issues as a backend.
+	Short: "mop is a tool to support manual operations using GitHub Issues",
+	Long: `mop is a tool to support manual operations using GitHub Issues for operation definition management.
 
-At first, prepare a GitHub repository and create an issue.
-Then, prepare a configuration file and run the "mop-start" command.
+To use this tool, first prepare a GitHub repository and create an Issue. 
+Next, write repository information to a configuration file (~/.mop.json). 
+To start an operation, execute "mop operation" command.
 `,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		var err error

@@ -21,7 +21,7 @@ function mop-start() {
   export MOP_ISSUE=$1
   export MOP_STEP=0
 
-  $GH_MOP start $MOP_ISSUE
+  $GH_MOP operation $MOP_ISSUE
   script -q -f -a ${MOP_DATADIR}/${MOP_REPO}/${MOP_ISSUE}/typescript.txt
 }
 
@@ -39,7 +39,7 @@ if [ -n "$MOP_ISSUE" ]; then
 
   # Insert the next command into the current line.
   function insert() {
-    local command=$($GH_MOP next $MOP_ISSUE $MOP_STEP)
+    local command=$($GH_MOP command $MOP_ISSUE $MOP_STEP)
     READLINE_LINE="$command"
     let READLINE_POINT+=${#command}
   }
