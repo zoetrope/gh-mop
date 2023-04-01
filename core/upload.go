@@ -13,11 +13,10 @@ import (
 // If removeEscSequences is true, it will remove ANSI escape sequences from the content.
 // Returns the sum of the offset and the length of the content read
 func UploadResult(client *Client, issue int, filepath string, offset int64, removeEscSequences bool) (int64, error) {
-	content, err := readContent(filepath, offset)
+	content, err := readContent(filepath)
 	if err != nil {
 		return 0, err
 	}
-	bytesRead := int64(len(content))
 
 	if removeEscSequences {
 		content = removeANSIEscapeSequences(content)
@@ -25,27 +24,25 @@ func UploadResult(client *Client, issue int, filepath string, offset int64, remo
 	}
 	content = convertNewline(content)
 
+	length := int64(len(content))
+	content = content[offset:]
+
 	comment := formatAsCodeBlock(content)
 	err = client.PostComment(issue, comment)
 	if err != nil {
 		return 0, err
 	}
-	return offset + bytesRead, nil
+	return length, nil
 }
 
-func readContent(filepath string, offset int64) (string, error) {
+func readContent(filepath string) (string, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
 		return "", err
 	}
 	defer file.Close()
 
-	if err := checkFileSize(file, offset); err != nil {
-		return "", err
-	}
-
-	_, err = file.Seek(offset, io.SeekStart)
-	if err != nil {
+	if err := checkFileSize(file); err != nil {
 		return "", err
 	}
 
@@ -57,14 +54,14 @@ func readContent(filepath string, offset int64) (string, error) {
 	return string(content), nil
 }
 
-func checkFileSize(file *os.File, offset int64) error {
+func checkFileSize(file *os.File) error {
 	fileInfo, err := file.Stat()
 	if err != nil {
 		return err
 	}
 
 	// The max size of a Issue comment is 65536 characters
-	if (fileInfo.Size() - offset) > 65000 {
+	if fileInfo.Size() > 65000 {
 		return fmt.Errorf("file is too large")
 	}
 

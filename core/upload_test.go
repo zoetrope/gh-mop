@@ -30,7 +30,7 @@ func TestUploadResult(t *testing.T) {
 	readBytes, err := UploadResult(client, 9999, "./testdata/typescript1.txt", 0, true)
 	assert.NoError(t, err)
 	assert.True(t, gock.IsDone())
-	assert.Equal(t, int64(230), readBytes)
+	assert.Equal(t, int64(222), readBytes)
 }
 
 func TestUploadResultWithOffset(t *testing.T) {
@@ -46,8 +46,8 @@ func TestUploadResultWithOffset(t *testing.T) {
 
 	client, err := NewClient("zoetrope", "gh-mop")
 
-	readBytes, err := UploadResult(client, 9999, "./testdata/typescript2.txt", 231, true)
+	readBytes, err := UploadResult(client, 9999, "./testdata/typescript2.txt", 222, true)
 	assert.NoError(t, err)
 	assert.True(t, gock.IsDone())
-	assert.Equal(t, int64(230), readBytes)
+	assert.Equal(t, int64(346), readBytes)
 }
