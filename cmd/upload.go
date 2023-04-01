@@ -27,6 +27,7 @@ Constraints:
   Execute "mop start" command before using this command.
   Files larger than 65,000 bytes cannot be uploaded.
 `,
+	Args: cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		client, err := core.NewClient(mopConfig.Owner, mopConfig.Repository)
 		if err != nil {
@@ -36,8 +37,7 @@ Constraints:
 		if err != nil {
 			return err
 		}
-		url, offset, err := core.UploadResult(client, issue,
-			fmt.Sprintf("%s/%s/%d/typescript.txt", mopConfig.DataDir, mopConfig.Repository, issue), uploadOffset)
+		url, offset, err := core.UploadResult(client, issue, args[1], uploadOffset)
 		if err != nil {
 			return err
 		}
