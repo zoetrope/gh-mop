@@ -30,7 +30,11 @@ Constraints:
   No need to execute "mop start" before using this command.
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		utilities, err := core.GetUtilities(mopConfig.Owner, mopConfig.Repository, mopConfig.Utilities)
+		client, err := core.NewClient(mopConfig.Owner, mopConfig.Repository)
+		if err != nil {
+			return err
+		}
+		utilities, err := core.GetUtilities(client, mopConfig.Utilities)
 		if err != nil {
 			return err
 		}

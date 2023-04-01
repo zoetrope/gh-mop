@@ -1,31 +1,18 @@
 package core
 
-import (
-	"fmt"
-
-	"github.com/cli/go-gh"
-)
-
 type Utility struct {
 	Title    string
 	Content  string
 	Commands []string
 }
 
-func GetUtilities(owner, repo string, issue int) ([]Utility, error) {
-	client, err := gh.RESTClient(nil)
-	if err != nil {
-		return nil, err
-	}
-	response := &struct {
-		Body string `json:"body"`
-	}{}
-	err = client.Get(fmt.Sprintf("repos/%s/%s/issues/%d", owner, repo, issue), &response)
+func GetUtilities(client *Client, issue int) ([]Utility, error) {
+	content, err := client.GetIssueContent(issue)
 	if err != nil {
 		return nil, err
 	}
 
-	sections, err := getSections(([]byte)(response.Body))
+	sections, err := getSections(([]byte)(content))
 	if err != nil {
 		return nil, err
 	}

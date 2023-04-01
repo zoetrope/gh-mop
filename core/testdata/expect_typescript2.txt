@@ -1,0 +1,8 @@
+```
+
+[gh-mop#1:Step0]$ 
+[gh-mop#1:Step0]$ next
+K[gh-mop#1:Step1]$ kubectl get deployment
+No resources found in default namespace.
+[gh-mop#1:Step1]$
+```

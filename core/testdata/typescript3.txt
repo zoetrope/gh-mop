@@ -1,0 +1,70 @@
+Script started on 2023-04-01 17:25:16+09:00 [TERM="xterm-256color" TTY="/dev/pts/3" COLUMNS="252" LINES="61"]
+[gh-mop#1:Step0]$ [K[gh-mop#1:Step0]$ kubectl get pod
+No resources found in default namespace.
+[gh-mop#1:Step0]$ next
+[gh-mop#1:Step1]$ [K[gh-mop#1:Step1]$ kubectl get deployment
+No resources found in default namespace.
+[gh-mop#1:Step1]$ next
+[gh-mop#1:Step2]$ [K[gh-mop#1:Step2]$ kubectl get svc -n default \
+    -o yaml \
+    --show-managed-fields
+apiVersion: v1
+items:
+- apiVersion: v1
+  kind: Service
+  metadata:
+    creationTimestamp: "2023-04-01T03:50:18Z"
+    labels:
+      component: apiserver
+      provider: kubernetes
+    managedFields:
+    - apiVersion: v1
+      fieldsType: FieldsV1
+      fieldsV1:
+        f:metadata:
+          f:labels:
+            .: {}
+            f:component: {}
+            f:provider: {}
+        f:spec:
+          f:clusterIP: {}
+          f:internalTrafficPolicy: {}
+          f:ipFamilyPolicy: {}
+          f:ports:
+            .: {}
+            k:{"port":443,"protocol":"TCP"}:
+              .: {}
+              f:name: {}
+              f:port: {}
+              f:protocol: {}
+              f:targetPort: {}
+          f:sessionAffinity: {}
+          f:type: {}
+      manager: kube-apiserver
+      operation: Update
+      time: "2023-04-01T03:50:18Z"
+    name: kubernetes
+    namespace: default
+    resourceVersion: "201"
+    uid: 935692c7-2099-47c8-814c-345591071333
+  spec:
+    clusterIP: 10.96.0.1
+    clusterIPs:
+    - 10.96.0.1
+    internalTrafficPolicy: Cluster
+    ipFamilies:
+    - IPv4
+    ipFamilyPolicy: SingleStack
+    ports:
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: 6443
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
+kind: List
+metadata:
+  resourceVersion: ""
+[gh-mop#1:Step2]$ 

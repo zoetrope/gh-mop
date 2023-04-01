@@ -1,0 +1,1 @@
+{"body":"## This issue is a sample to define a manual operation\r\n\r\n```\r\n# This is a comment\r\n$ kubectl get pod\r\n\r\n# You can omit `$`\r\nkubectl get deployment\r\n\r\n# This is a multiline command\r\n$ kubectl get svc -n default \\\r\n    -o yaml \\\r\n    --show-managed-fields\r\n```"}
