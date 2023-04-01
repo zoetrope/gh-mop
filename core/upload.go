@@ -12,27 +12,25 @@ import (
 // The content will be read from the specified file with the given offset.
 // If removeEscSequences is true, it will remove ANSI escape sequences from the content.
 // Returns the sum of the offset and the length of the content read
-func UploadResult(client *Client, issue int, filepath string, offset int64, removeEscSequences bool) (int64, error) {
+func UploadResult(client *Client, issue int, filepath string, offset int64) (string, int64, error) {
 	content, err := readContent(filepath)
 	if err != nil {
-		return 0, err
+		return "", 0, err
 	}
 
-	if removeEscSequences {
-		content = removeANSIEscapeSequences(content)
-		content = removeBackspace(content)
-	}
+	content = removeANSIEscapeSequences(content)
+	content = removeBackspace(content)
 	content = convertNewline(content)
 
 	length := int64(len(content))
 	content = content[offset:]
 
 	comment := formatAsCodeBlock(content)
-	err = client.PostComment(issue, comment)
+	url, err := client.PostComment(issue, comment)
 	if err != nil {
-		return 0, err
+		return "", 0, err
 	}
-	return length, nil
+	return url, length, nil
 }
 
 func readContent(filepath string) (string, error) {

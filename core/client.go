@@ -38,7 +38,7 @@ func (c *Client) GetIssueContent(issue int) (string, error) {
 	return response.Body, nil
 }
 
-func (c *Client) PostComment(issue int, comment string) error {
+func (c *Client) PostComment(issue int, comment string) (string, error) {
 	var body = struct {
 		Body string `json:"body"`
 	}{
@@ -51,7 +51,7 @@ func (c *Client) PostComment(issue int, comment string) error {
 	r := bytes.NewReader(j)
 	err = c.ghClient.Post(fmt.Sprintf("repos/%s/%s/issues/%d/comments", c.owner, c.repository, issue), r, &response)
 	if err != nil {
-		return err
+		return "", err
 	}
-	return nil
+	return response.URL, nil
 }

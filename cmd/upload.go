@@ -9,7 +9,6 @@ import (
 )
 
 var uploadOffset int64
-var removeAnsiEscape bool
 
 // uploadCmd represents the upload command
 var uploadCmd = &cobra.Command{
@@ -37,11 +36,12 @@ Constraints:
 		if err != nil {
 			return err
 		}
-		offset, err := core.UploadResult(client, issue,
-			fmt.Sprintf("%s/%s/%d/typescript.txt", mopConfig.DataDir, mopConfig.Repository, issue), uploadOffset, removeAnsiEscape)
+		url, offset, err := core.UploadResult(client, issue,
+			fmt.Sprintf("%s/%s/%d/typescript.txt", mopConfig.DataDir, mopConfig.Repository, issue), uploadOffset)
 		if err != nil {
 			return err
 		}
+		fmt.Println(url)
 		fmt.Println(offset)
 		return nil
 	},
@@ -52,5 +52,4 @@ func init() {
 
 	fs := uploadCmd.Flags()
 	fs.Int64VarP(&uploadOffset, "offset", "o", 0, "writes content only after the specified byte number")
-	fs.BoolVarP(&removeAnsiEscape, "remove-ansi-escape", "r", true, "removes ANSI escape sequences from the result file")
 }
