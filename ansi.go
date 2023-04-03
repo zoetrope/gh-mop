@@ -9,9 +9,9 @@ import (
 	"strings"
 )
 
-const AnsiEscapeSequenceRegex = `([87MH>])|\[(\?\d+[hl])|([0-2]?[KJ])|(\d*[ABCDDEFGgimnPSsTu@])|(1000D\d+)|(\d*;\d*[fHrm])|(\d+;\d+;\d+m)|(=\d+h)`
+const AnsiEscapeSequenceRegex = `([0-9A-Z>])|\[([?=]?)(\d+)((;\d)*)([a-zA-Z@])`
 
-//                                   (1         (2          (3           (4                        (5         (6              (7
+//                               (1            (2     (3    (4,5   (6
 // 1. \x1B8 - cursor control
 // 2. \x1B[?25l - common private mode
 // 3. \x1B[2J - erase
@@ -90,54 +90,51 @@ type termInfo struct {
 
 func (t *termInfo) parse(r rune) int {
 
-	if t.escape {
-		t.buffer.WriteRune(r)
-		currentString := t.buffer.String()
-		groups := t.ansiRegex.FindStringSubmatch(currentString)
-		//match := ansiRegex.FindString(currentString)
-		if len(groups) > 0 {
-			code := SKIP
-			if len(groups[1]) > 0 {
-				if groups[1] == ">" {
-					code = ERASE_ENTIRE_SCREEN
-				}
-			} else if len(groups[2]) > 0 {
-
-			} else if len(groups[3]) > 0 {
-				if groups[3] == "K" {
-					code = ERASE_LINE
-				} else if groups[3] == "2J" {
-					code = ERASE_ENTIRE_SCREEN
-				}
-			} else if len(groups[4]) > 0 {
-				if strings.HasSuffix(groups[4], "@") {
-					code = INSERT_SPACE
-				}
-				if strings.HasSuffix(groups[4], "C") {
-					code = MOVE_RIGHT
-				}
-				if strings.HasSuffix(groups[4], "P") {
-					code = DELETE
-				}
-			}
-
-			t.buffer.Reset()
-			t.escape = false
-			return code
+	if !t.escape {
+		switch r {
+		case ESC:
+			t.escape = true
+			return SKIP
+		case BS:
+			return BACKSPACE
+		case LF:
+			return LINEFEED
 		}
-		return SKIP
-	}
-	switch r {
-	case ESC:
-		t.escape = true
-		return SKIP
-	case BS:
-		return BACKSPACE
-	case LF:
-		return LINEFEED
+		return CHARACTER
 	}
 
-	return CHARACTER
+	t.buffer.WriteRune(r)
+	currentString := t.buffer.String()
+	groups := t.ansiRegex.FindStringSubmatch(currentString)
+	//match := ansiRegex.FindString(currentString)
+	if len(groups) == 0 {
+		return SKIP
+	}
+
+	code := SKIP
+	if len(groups[1]) > 0 {
+		if groups[1] == ">" {
+			code = ERASE_ENTIRE_SCREEN
+		}
+	} else if len(groups[6]) > 0 {
+		switch groups[6] {
+		case "K":
+			code = ERASE_LINE
+		case "J":
+			code = ERASE_ENTIRE_SCREEN
+		case "C":
+			code = INSERT_SPACE
+		case "P":
+			code = MOVE_RIGHT
+		case "@":
+			code = DELETE
+		}
+	}
+
+	t.buffer.Reset()
+	t.escape = false
+
+	return code
 }
 
 func processLine(line string, ansiRegex *regexp.Regexp) {
