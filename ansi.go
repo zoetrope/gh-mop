@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-const AnsiEscapeSequenceRegex = `\x1B([87MH>])|\[(\?\d+[hl])|([0-2]?[KJ])|(\d*[ABCDDEFGgimnPSsTu@])|(1000D\d+)|(\d*;\d*[fHrm])|(\d+;\d+;\d+m)|(=\d+h)`
+const AnsiEscapeSequenceRegex = `([87MH>])|\[(\?\d+[hl])|([0-2]?[KJ])|(\d*[ABCDDEFGgimnPSsTu@])|(1000D\d+)|(\d*;\d*[fHrm])|(\d+;\d+;\d+m)|(=\d+h)`
 
 //                                   (1         (2          (3           (4                        (5         (6              (7
 // 1. \x1B8 - cursor control
@@ -74,7 +74,8 @@ const (
 	BACKSPACE
 	LINEFEED
 
-	CLEAR
+	ERASE_LINE
+	ERASE_ENTIRE_SCREEN
 	INSERT_SPACE
 
 	MOVE_RIGHT
@@ -88,6 +89,7 @@ type termInfo struct {
 }
 
 func (t *termInfo) parse(r rune) int {
+
 	if t.escape {
 		t.buffer.WriteRune(r)
 		currentString := t.buffer.String()
@@ -96,11 +98,17 @@ func (t *termInfo) parse(r rune) int {
 		if len(groups) > 0 {
 			code := SKIP
 			if len(groups[1]) > 0 {
-
+				if groups[1] == ">" {
+					code = ERASE_ENTIRE_SCREEN
+				}
 			} else if len(groups[2]) > 0 {
 
 			} else if len(groups[3]) > 0 {
-				code = CLEAR
+				if groups[3] == "K" {
+					code = ERASE_LINE
+				} else if groups[3] == "2J" {
+					code = ERASE_ENTIRE_SCREEN
+				}
 			} else if len(groups[4]) > 0 {
 				if strings.HasSuffix(groups[4], "@") {
 					code = INSERT_SPACE
@@ -159,8 +167,11 @@ func processLine(line string, ansiRegex *regexp.Regexp) {
 		case LINEFEED:
 			result = make([]byte, 0, len(line))
 			cur = 0
-		case CLEAR:
+		case ERASE_LINE:
 			result = result[:cur]
+		case ERASE_ENTIRE_SCREEN:
+			result = make([]byte, 0, len(line))
+			cur = 0
 		case INSERT_SPACE:
 			result = append(result[:cur+1], result[cur:]...)
 			result[cur] = ' '
@@ -175,9 +186,21 @@ func processLine(line string, ansiRegex *regexp.Regexp) {
 				result = append(result, byte(r))
 			}
 			cur++
+			//fmt.Printf("p: %s\n", string(result))
 		default:
 
 		}
+	}
+	if len(term.buffer.String()) > 0 {
+		fmt.Print("unprocessed: ")
+		for _, s := range term.buffer.String() {
+			if s == '\x1B' {
+				fmt.Print("\\x1b")
+			} else {
+				fmt.Printf("%c", s)
+			}
+		}
+		fmt.Println()
 	}
 	fmt.Printf("%s\n", string(result))
 }
