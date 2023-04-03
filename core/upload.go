@@ -2,7 +2,6 @@ package core
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"regexp"
 	"strings"
@@ -13,14 +12,14 @@ import (
 // If removeEscSequences is true, it will remove ANSI escape sequences from the content.
 // Returns the sum of the offset and the length of the content read
 func UploadResult(client *Client, issue int, filepath string, offset int64) (string, int64, error) {
-	content, err := readContent(filepath)
-	if err != nil {
+	if err := checkFileSize(filepath); err != nil {
 		return "", 0, err
 	}
 
-	content = removeANSIEscapeSequences(content)
-	content = removeBackspace(content)
-	content = convertNewline(content)
+	content, err := processFile(filepath)
+	if err != nil {
+		return "", 0, err
+	}
 
 	length := int64(len(content))
 	content = content[offset:]
@@ -33,26 +32,13 @@ func UploadResult(client *Client, issue int, filepath string, offset int64) (str
 	return url, length, nil
 }
 
-func readContent(filepath string) (string, error) {
+func checkFileSize(filepath string) error {
 	file, err := os.Open(filepath)
 	if err != nil {
-		return "", err
+		return err
 	}
 	defer file.Close()
 
-	if err := checkFileSize(file); err != nil {
-		return "", err
-	}
-
-	content, err := io.ReadAll(file)
-	if err != nil {
-		return "", err
-	}
-
-	return string(content), nil
-}
-
-func checkFileSize(file *os.File) error {
 	fileInfo, err := file.Stat()
 	if err != nil {
 		return err

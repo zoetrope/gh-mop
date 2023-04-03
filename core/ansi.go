@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"bufio"
@@ -21,38 +21,30 @@ const AnsiEscapeSequenceRegex = `([0-9A-Z>])|\[([?=]?)(\d+)((;\d)*)([a-zA-Z@])`
 // 7. \x1B[1;1m - set color
 // 8. \x1B[=1h - set screen mode
 
-func main() {
-	inputFile := "./core/testdata/input.txt"
-
-	err := processFile(inputFile)
-	if err != nil {
-		fmt.Println("Error:", err)
-	}
-}
-
-func processFile(inputFile string) error {
+func processFile(inputFile string) (string, error) {
 	file, err := os.Open(inputFile)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer file.Close()
 
 	ansiRegex, err := regexp.Compile(AnsiEscapeSequenceRegex)
 	if err != nil {
-		return err
+		return "", err
 	}
 
+	result := ""
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		processLine(line, ansiRegex)
+		result += processLine(line, ansiRegex) + "\n"
 	}
 
 	if scanner.Err() != nil {
-		return scanner.Err()
+		return "", scanner.Err()
 	}
 
-	return nil
+	return result, nil
 }
 
 const (
@@ -89,7 +81,6 @@ type termInfo struct {
 }
 
 func (t *termInfo) parse(r rune) int {
-
 	if !t.escape {
 		switch r {
 		case ESC:
@@ -106,7 +97,6 @@ func (t *termInfo) parse(r rune) int {
 	t.buffer.WriteRune(r)
 	currentString := t.buffer.String()
 	groups := t.ansiRegex.FindStringSubmatch(currentString)
-	//match := ansiRegex.FindString(currentString)
 	if len(groups) == 0 {
 		return SKIP
 	}
@@ -137,7 +127,7 @@ func (t *termInfo) parse(r rune) int {
 	return code
 }
 
-func processLine(line string, ansiRegex *regexp.Regexp) {
+func processLine(line string, ansiRegex *regexp.Regexp) string {
 	reader := strings.NewReader(line)
 	result := make([]byte, 0, len(line))
 	cur := 0
@@ -183,21 +173,12 @@ func processLine(line string, ansiRegex *regexp.Regexp) {
 				result = append(result, byte(r))
 			}
 			cur++
-			//fmt.Printf("p: %s\n", string(result))
 		default:
 
 		}
 	}
 	if len(term.buffer.String()) > 0 {
-		fmt.Print("unprocessed: ")
-		for _, s := range term.buffer.String() {
-			if s == '\x1B' {
-				fmt.Print("\\x1b")
-			} else {
-				fmt.Printf("%c", s)
-			}
-		}
-		fmt.Println()
+		fmt.Printf("unprocessed: %s\n", term.buffer.String())
 	}
-	fmt.Printf("%s\n", string(result))
+	return string(result)
 }
