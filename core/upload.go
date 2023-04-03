@@ -3,8 +3,6 @@ package core
 import (
 	"fmt"
 	"os"
-	"regexp"
-	"strings"
 )
 
 // UploadResult uploads the content as a formatted comment to the given issue.
@@ -53,22 +51,5 @@ func checkFileSize(filepath string) error {
 }
 
 func formatAsCodeBlock(content string) string {
-	return "```\n" + content + "\n```\n"
-}
-
-func removeANSIEscapeSequences(input string) string {
-	ansiEscapeRegex := regexp.MustCompile(`\x1B\[[0-?]*[ -/]*[@-~]`)
-	return ansiEscapeRegex.ReplaceAllString(input, "")
-}
-
-func convertNewline(content string) string {
-	return strings.NewReplacer(
-		"\r\n", "\n",
-		"\r", "\n",
-		"\n", "\n",
-	).Replace(content)
-}
-
-func removeBackspace(content string) string {
-	return strings.ReplaceAll(content, "\b", "")
+	return "```\n" + content + "```\n"
 }

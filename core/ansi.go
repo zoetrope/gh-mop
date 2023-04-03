@@ -65,6 +65,7 @@ const (
 	CHARACTER
 	BACKSPACE
 	LINEFEED
+	CARRIAGE_RETURN
 
 	ERASE_LINE
 	ERASE_ENTIRE_SCREEN
@@ -89,7 +90,10 @@ func (t *termInfo) parse(r rune) int {
 		case BS:
 			return BACKSPACE
 		case LF:
-			return LINEFEED
+			return SKIP
+		//	return LINEFEED
+		case CR:
+			return CARRIAGE_RETURN
 		}
 		return CHARACTER
 	}
@@ -151,9 +155,16 @@ func processLine(line string, ansiRegex *regexp.Regexp) string {
 			if cur > 0 {
 				cur--
 			}
-		case LINEFEED:
-			result = make([]byte, 0, len(line))
-			cur = 0
+		//case LINEFEED:
+		//	result = make([]byte, 0, len(line))
+		//	cur = 0
+		case CARRIAGE_RETURN:
+			if len(result) > cur {
+				result[cur] = '\n'
+			} else {
+				result = append(result, '\n')
+			}
+			cur++
 		case ERASE_LINE:
 			result = result[:cur]
 		case ERASE_ENTIRE_SCREEN:
