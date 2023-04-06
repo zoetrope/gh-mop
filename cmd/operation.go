@@ -7,7 +7,7 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
-	"github.com/zoetrope/gh-mop/core"
+	"github.com/zoetrope/gh-mop/pkg/command"
 )
 
 // operationCmd represents the operation command
@@ -31,7 +31,7 @@ Constraints:
 		if err != nil {
 			return err
 		}
-		op, err := core.GetOperation(mopConfig.Owner, mopConfig.Repository, issue)
+		op, err := command.GetOperation(mopConfig.Owner, mopConfig.Repository, issue)
 		if err != nil {
 			return err
 		}

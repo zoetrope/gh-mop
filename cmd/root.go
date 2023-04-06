@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/zoetrope/gh-mop/config"
+	"github.com/zoetrope/gh-mop/pkg/config"
 )
 
 var configPath string

@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
-	"github.com/zoetrope/gh-mop/core"
+	"github.com/zoetrope/gh-mop/pkg/command"
 )
 
 // commandCmd represents the command command
@@ -29,7 +29,7 @@ Constraints:
 	Args: cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		opDir := filepath.Join(mopConfig.DataDir, mopConfig.Repository, args[0])
-		op, err := core.LoadOperation(filepath.Join(opDir, "operation.json"))
+		op, err := command.LoadOperation(filepath.Join(opDir, "operation.json"))
 		if err != nil {
 			return err
 		}

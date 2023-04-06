@@ -5,7 +5,8 @@ import (
 	"strconv"
 
 	"github.com/spf13/cobra"
-	"github.com/zoetrope/gh-mop/core"
+	"github.com/zoetrope/gh-mop/pkg/command"
+	"github.com/zoetrope/gh-mop/pkg/github"
 )
 
 var uploadOffset int64
@@ -29,7 +30,7 @@ Constraints:
 `,
 	Args: cobra.ExactArgs(2),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client, err := core.NewClient(mopConfig.Owner, mopConfig.Repository)
+		client, err := github.NewClient(mopConfig.Owner, mopConfig.Repository)
 		if err != nil {
 			return err
 		}
@@ -37,7 +38,7 @@ Constraints:
 		if err != nil {
 			return err
 		}
-		url, offset, err := core.UploadResult(client, issue, args[1], uploadOffset)
+		url, offset, err := command.UploadResult(client, issue, args[1], uploadOffset)
 		if err != nil {
 			return err
 		}

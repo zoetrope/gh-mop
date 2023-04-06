@@ -1,4 +1,4 @@
-package core
+package markdown
 
 import (
 	"bytes"
@@ -10,9 +10,10 @@ import (
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
+	"github.com/zoetrope/gh-mop/pkg/command"
 )
 
-func getSections(markdownText []byte) ([]Utility, error) {
+func ExtractSections(markdownText []byte) ([]command.Utility, error) {
 	md := goldmark.New(
 		goldmark.WithExtensions(extension.GFM),
 		goldmark.WithParserOptions(
@@ -20,7 +21,7 @@ func getSections(markdownText []byte) ([]Utility, error) {
 		),
 	)
 
-	var sections []Utility
+	var sections []command.Utility
 	reader := text.NewReader(markdownText)
 	rootNode := md.Parser().Parse(reader)
 
@@ -45,7 +46,7 @@ func getSections(markdownText []byte) ([]Utility, error) {
 
 			content := string(markdownText[start:contentEnd])
 
-			sections = append(sections, Utility{
+			sections = append(sections, command.Utility{
 				Title:   headingText,
 				Content: strings.Repeat("#", heading.Level) + " " + content,
 			})
@@ -59,7 +60,7 @@ func getSections(markdownText []byte) ([]Utility, error) {
 
 	return sections, nil
 }
-func getCommands(markdownText []byte) ([]string, error) {
+func ExtractCommands(markdownText []byte) ([]string, error) {
 	var lineRegex = regexp.MustCompile("\r\n|\n")
 
 	md := goldmark.New(
@@ -96,7 +97,7 @@ func getCommands(markdownText []byte) ([]string, error) {
 
 	var commands []string
 	for _, codeBlock := range codeBlocks {
-		var command string
+		var cmd string
 		for _, line := range lineRegex.Split(codeBlock, -1) {
 			if strings.HasPrefix(line, "#") {
 				continue
@@ -108,13 +109,13 @@ func getCommands(markdownText []byte) ([]string, error) {
 				line = strings.TrimLeft(line, "$ ")
 			}
 
-			command += line
+			cmd += line
 			if strings.HasSuffix(line, "\\") {
-				command += "\n"
+				cmd += "\n"
 				continue
 			}
-			commands = append(commands, command)
-			command = ""
+			commands = append(commands, cmd)
+			cmd = ""
 		}
 	}
 

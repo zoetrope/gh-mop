@@ -1,10 +1,11 @@
-package core
+package command
 
 import (
 	_ "embed"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/zoetrope/gh-mop/pkg/github"
 	"gopkg.in/h2non/gock.v1"
 )
 
@@ -25,7 +26,7 @@ func TestUploadResult(t *testing.T) {
 		Reply(200).
 		BodyString(`{"html_url": "https://github.com/zoetrope/gh-mop/issues/9999#issuecomment-1234"}`)
 
-	client, err := NewClient("zoetrope", "gh-mop")
+	client, err := github.NewClient("zoetrope", "gh-mop")
 
 	url, readBytes, err := UploadResult(client, 9999, "./testdata/typescript1.txt", 0)
 	assert.NoError(t, err)
@@ -45,7 +46,7 @@ func TestUploadResultWithOffset(t *testing.T) {
 		Reply(200).
 		BodyString(`{"html_url": "https://github.com/zoetrope/gh-mop/issues/9999#issuecomment-1235"}`)
 
-	client, err := NewClient("zoetrope", "gh-mop")
+	client, err := github.NewClient("zoetrope", "gh-mop")
 
 	url, readBytes, err := UploadResult(client, 9999, "./testdata/typescript2.txt", 222)
 	assert.NoError(t, err)

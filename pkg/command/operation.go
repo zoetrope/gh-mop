@@ -1,4 +1,4 @@
-package core
+package command
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/cli/go-gh"
+	"github.com/zoetrope/gh-mop/pkg/markdown"
 )
 
 type Operation struct {
@@ -41,7 +42,7 @@ func GetOperation(owner, repo string, issue int) (*Operation, error) {
 		return nil, err
 	}
 
-	commands, err := getCommands(([]byte)(response.Body))
+	commands, err := markdown.ExtractCommands(([]byte)(response.Body))
 	if err != nil {
 		return nil, err
 	}

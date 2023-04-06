@@ -8,7 +8,8 @@ import (
 	"github.com/cli/go-gh/pkg/markdown"
 	"github.com/ktr0731/go-fuzzyfinder"
 	"github.com/spf13/cobra"
-	"github.com/zoetrope/gh-mop/core"
+	"github.com/zoetrope/gh-mop/pkg/command"
+	"github.com/zoetrope/gh-mop/pkg/github"
 )
 
 // utilitiesCmd represents the utilities command
@@ -30,11 +31,11 @@ Constraints:
   No need to execute "mop start" before using this command.
 `,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client, err := core.NewClient(mopConfig.Owner, mopConfig.Repository)
+		client, err := github.NewClient(mopConfig.Owner, mopConfig.Repository)
 		if err != nil {
 			return err
 		}
-		utilities, err := core.GetUtilities(client, mopConfig.Utilities)
+		utilities, err := command.GetUtilities(client, mopConfig.Utilities)
 		if err != nil {
 			return err
 		}
