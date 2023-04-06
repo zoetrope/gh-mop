@@ -3,6 +3,7 @@ package markdown
 import (
 	"bytes"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/yuin/goldmark"
@@ -10,10 +11,15 @@ import (
 	"github.com/yuin/goldmark/extension"
 	"github.com/yuin/goldmark/parser"
 	"github.com/yuin/goldmark/text"
-	"github.com/zoetrope/gh-mop/pkg/command"
 )
 
-func ExtractSections(markdownText []byte) ([]command.Utility, error) {
+type Section struct {
+	Title    string
+	Content  string
+	Commands []string
+}
+
+func ExtractSections(markdownText []byte) ([]Section, error) {
 	md := goldmark.New(
 		goldmark.WithExtensions(extension.GFM),
 		goldmark.WithParserOptions(
@@ -21,7 +27,7 @@ func ExtractSections(markdownText []byte) ([]command.Utility, error) {
 		),
 	)
 
-	var sections []command.Utility
+	var sections []Section
 	reader := text.NewReader(markdownText)
 	rootNode := md.Parser().Parse(reader)
 
@@ -46,7 +52,7 @@ func ExtractSections(markdownText []byte) ([]command.Utility, error) {
 
 			content := string(markdownText[start:contentEnd])
 
-			sections = append(sections, command.Utility{
+			sections = append(sections, Section{
 				Title:   headingText,
 				Content: strings.Repeat("#", heading.Level) + " " + content,
 			})
@@ -60,7 +66,10 @@ func ExtractSections(markdownText []byte) ([]command.Utility, error) {
 
 	return sections, nil
 }
-func ExtractCommands(markdownText []byte) ([]string, error) {
+
+type getContentFn func(issue int) (string, error)
+
+func ExtractCommands(markdownText string, getContent getContentFn, readIssues []int) ([]string, error) {
 	var lineRegex = regexp.MustCompile("\r\n|\n")
 
 	md := goldmark.New(
@@ -71,13 +80,13 @@ func ExtractCommands(markdownText []byte) ([]string, error) {
 	)
 
 	var codeBlocks []string
-	err := ast.Walk(md.Parser().Parse(text.NewReader(markdownText)), func(n ast.Node, entering bool) (ast.WalkStatus, error) {
+	err := ast.Walk(md.Parser().Parse(text.NewReader([]byte(markdownText))), func(n ast.Node, entering bool) (ast.WalkStatus, error) {
 		if entering {
 			if n.Kind() == ast.KindFencedCodeBlock {
 				codeBlock := n.(*ast.FencedCodeBlock)
 				start := codeBlock.Lines().At(0).Start
 				end := codeBlock.Lines().At(codeBlock.Lines().Len() - 1).Stop
-				code := bytes.TrimSpace(markdownText[start:end])
+				code := bytes.TrimSpace([]byte(markdownText[start:end]))
 				codeBlocks = append(codeBlocks, string(code))
 			}
 			if n.Kind() == ast.KindParagraph {
@@ -85,9 +94,30 @@ func ExtractCommands(markdownText []byte) ([]string, error) {
 				lines := paragraph.Lines()
 				for i := 0; i < lines.Len(); i++ {
 					line := lines.At(i)
-					lineText := string(markdownText[line.Start:line.Stop])
-					if strings.HasPrefix(strings.TrimSpace(lineText), "ref:") {
-						//DetectCommand()
+					lineText := strings.TrimSpace(markdownText[line.Start:line.Stop])
+					if strings.HasPrefix(lineText, "ref: #") {
+						issue, err := strconv.Atoi(strings.TrimPrefix(lineText, "ref: #"))
+						if err != nil {
+							return ast.WalkStop, err
+						}
+						for _, i := range readIssues {
+							if i == issue {
+								// this issue has already been read
+								continue
+							}
+						}
+						content, err := getContent(issue)
+						if err != nil {
+							return ast.WalkStop, err
+						}
+						if content == "" {
+							continue
+						}
+						cmds, err := ExtractCommands(content, getContent, append(readIssues, issue))
+						if err != nil {
+							return ast.WalkStop, err
+						}
+						codeBlocks = append(codeBlocks, cmds...)
 					}
 				}
 			}
@@ -99,7 +129,7 @@ func ExtractCommands(markdownText []byte) ([]string, error) {
 	for _, codeBlock := range codeBlocks {
 		var cmd string
 		for _, line := range lineRegex.Split(codeBlock, -1) {
-			if strings.HasPrefix(line, "#") {
+			if strings.HasPrefix(line, "#") || strings.HasPrefix(line, "@") {
 				continue
 			}
 			if strings.TrimSpace(line) == "" {

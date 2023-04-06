@@ -2,10 +2,9 @@ package command
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 
-	"github.com/cli/go-gh"
+	"github.com/zoetrope/gh-mop/pkg/github"
 	"github.com/zoetrope/gh-mop/pkg/markdown"
 )
 
@@ -31,21 +30,24 @@ func SaveOperation() {
 
 }
 
-func GetOperation(owner, repo string, issue int) (*Operation, error) {
-	client, err := gh.RESTClient(nil)
-	if err != nil {
-		return nil, err
-	}
-	response := &Operation{}
-	err = client.Get(fmt.Sprintf("repos/%s/%s/issues/%d", owner, repo, issue), &response)
+func GetOperation(client *github.Client, issue int) (*Operation, error) {
+	content, err := client.GetIssueContent(issue)
 	if err != nil {
 		return nil, err
 	}
 
-	commands, err := markdown.ExtractCommands(([]byte)(response.Body))
+	commands, err := markdown.ExtractCommands(content, func(issue int) (string, error) {
+		c, err := client.GetIssueContent(issue)
+		if err != nil {
+			return "", err
+		}
+		return c, nil
+	}, []int{issue})
 	if err != nil {
 		return nil, err
 	}
-	response.Commands = commands
-	return response, nil
+
+	operation := &Operation{}
+	operation.Commands = commands
+	return operation, nil
 }

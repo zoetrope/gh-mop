@@ -6,6 +6,8 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/zoetrope/gh-mop/pkg/github"
+
 	"github.com/spf13/cobra"
 	"github.com/zoetrope/gh-mop/pkg/command"
 )
@@ -27,11 +29,15 @@ Constraints:
 `,
 	Args: cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
+		client, err := github.NewClient(mopConfig.Owner, mopConfig.Repository)
+		if err != nil {
+			return err
+		}
 		issue, err := strconv.Atoi(args[0])
 		if err != nil {
 			return err
 		}
-		op, err := command.GetOperation(mopConfig.Owner, mopConfig.Repository, issue)
+		op, err := command.GetOperation(client, issue)
 		if err != nil {
 			return err
 		}

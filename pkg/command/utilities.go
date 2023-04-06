@@ -5,13 +5,7 @@ import (
 	"github.com/zoetrope/gh-mop/pkg/markdown"
 )
 
-type Utility struct {
-	Title    string
-	Content  string
-	Commands []string
-}
-
-func GetUtilities(client *github.Client, issue int) ([]Utility, error) {
+func GetUtilities(client *github.Client, issue int) ([]markdown.Section, error) {
 	content, err := client.GetIssueContent(issue)
 	if err != nil {
 		return nil, err
@@ -23,7 +17,9 @@ func GetUtilities(client *github.Client, issue int) ([]Utility, error) {
 	}
 
 	for i, section := range sections {
-		commands, err := markdown.ExtractCommands(([]byte)(section.Content))
+		commands, err := markdown.ExtractCommands(section.Content, func(issue int) (string, error) {
+			return "", nil
+		}, []int{issue})
 		if err != nil {
 			return nil, err
 		}
