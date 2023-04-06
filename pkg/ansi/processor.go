@@ -55,7 +55,7 @@ func processLine(line string) string {
 		//case LINEFEED:
 		//	result = make([]byte, 0, len(line))
 		//	cur = 0
-		case CarriageReturn:
+		case NewLine:
 			if len(result) > cur {
 				result[cur] = '\n'
 			} else {
@@ -64,7 +64,7 @@ func processLine(line string) string {
 			cur++
 		case EraseLine:
 			result = result[:cur]
-		case EraseEntireScreen:
+		case EraseScreen:
 			result = make([]byte, 0, len(line))
 			cur = 0
 		case InsertSpace:

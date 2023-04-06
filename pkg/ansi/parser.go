@@ -2,7 +2,6 @@ package ansi
 
 import (
 	"bytes"
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -33,10 +32,10 @@ const (
 	Character
 	Backspace
 	LINEFEED
-	CarriageReturn
+	NewLine
 
 	EraseLine
-	EraseEntireScreen
+	EraseScreen
 	InsertSpace
 
 	MoveRight
@@ -65,7 +64,7 @@ func (t *parser) parse(r rune) control {
 			return control{code: Skip}
 		//	return LINEFEED
 		case AsciiCR:
-			return control{code: CarriageReturn}
+			return control{code: NewLine}
 		}
 		return control{code: Character}
 	}
@@ -77,19 +76,17 @@ func (t *parser) parse(r rune) control {
 		return control{code: Skip}
 	}
 
-	fmt.Printf("mach: %#v\n", groups)
-
 	code := Skip
 	if len(groups[1]) > 0 {
 		if groups[1] == ">" {
-			code = EraseEntireScreen
+			code = EraseScreen
 		}
 	} else if len(groups[6]) > 0 {
 		switch groups[6] {
 		case "K":
 			code = EraseLine
 		case "J":
-			code = EraseEntireScreen
+			code = EraseScreen
 		case "C":
 			code = InsertSpace
 		case "P":
