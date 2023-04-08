@@ -45,35 +45,86 @@ func processLine(line string) string {
 		}
 		es := parser.parse(r)
 
+		// for debug
+		//if es.code != Skip {
+		//	fmt.Printf("code: %v, params: %v, cur: %v, result: %v\n", es.code, es.params, cur, string(result))
+		//}
+
 		switch es.code {
 		case Skip:
 			break
-		case Backspace:
-			if cur > 0 {
-				cur--
+		case MoveLeft:
+			p := 1
+			if len(es.params) != 0 {
+				p = es.params[0]
 			}
-		//case LINEFEED:
-		//	result = make([]byte, 0, len(line))
-		//	cur = 0
-		case NewLine:
-			if len(result) > cur {
-				result[cur] = '\n'
-			} else {
-				result = append(result, '\n')
+			cur -= p
+			if cur < 0 {
+				cur = 0
 			}
-			cur++
-		case EraseLine:
-			result = result[:cur]
-		case EraseScreen:
-			result = make([]byte, 0, len(line))
-			cur = 0
-		case InsertSpace:
-			result = append(result[:cur+1], result[cur:]...)
-			result[cur] = ' '
 		case MoveRight:
-			cur++
+			p := 1
+			if len(es.params) != 0 {
+				p = es.params[0]
+			}
+			cur += p
+			if cur > len(result) {
+				cur = len(result)
+			}
+		case CarriageReturn:
+			cur = 0
+		case EraseLine:
+			p := 0
+			if len(es.params) != 0 {
+				p = es.params[0]
+			}
+			switch p {
+			case 0: // erase from cursor to end of line
+				result = result[:cur]
+				cur = len(result)
+			case 1: // erase start of line to the cursor
+				result = result[cur:]
+				cur = 0
+			case 2: // erase the entire line
+				result = make([]byte, 0, len(line))
+				cur = 0
+			}
+		case EraseScreen:
+			p := 0
+			if len(es.params) != 0 {
+				p = es.params[0]
+			}
+			switch p {
+			case 0: // erase from cursor to end of screen
+				result = result[:cur]
+				cur = len(result)
+			case 1: // erase from cursor to beginning of screen
+				result = result[cur:]
+				cur = 0
+			case 2: // erase entire screen
+				result = make([]byte, 0, len(line))
+				cur = 0
+			case 3: // erase saved lines
+				result = make([]byte, 0, len(line))
+				cur = 0
+			}
+		case InsertSpace:
+			p := 1
+			if len(es.params) != 0 {
+				p = es.params[0]
+			}
+			for i := 0; i < p; i++ {
+				result = append(result[:cur+1], result[cur:]...)
+				result[cur] = ' '
+			}
 		case Delete:
-			result = append(result[:cur], result[cur+1:]...)
+			p := 1
+			if len(es.params) != 0 {
+				p = es.params[0]
+			}
+			for i := 0; i < p; i++ {
+				result = append(result[:cur], result[cur+1:]...)
+			}
 		case Character:
 			if len(result) > cur {
 				result[cur] = byte(r)

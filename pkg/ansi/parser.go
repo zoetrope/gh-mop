@@ -10,7 +10,7 @@ import (
 var escapeSequenceRegex *regexp.Regexp
 
 func init() {
-	escapeSequenceRegex = regexp.MustCompile(`^([0-9A-Z>])|\[([?=]?)(\d+)?((;\d)*)([a-zA-Z@])$`)
+	escapeSequenceRegex = regexp.MustCompile(`^([0-9A-Z>])|(]\d+;)|\[([?=]?)(\d+)?((;\d)*)([a-zA-Z@])$`)
 }
 
 const (
@@ -25,21 +25,21 @@ const (
 	AsciiDell = 0x7F // Delete
 )
 
-type Code int
+type Code string
 
 const (
-	Skip Code = iota
-	Character
-	Backspace
-	LINEFEED
-	NewLine
+	Skip           = Code("Skip")
+	Character      = Code("Character")
+	MoveLeft       = Code("MoveLeft")
+	Linefeed       = Code("Linefeed")
+	CarriageReturn = Code("CarriageReturn")
 
-	EraseLine
-	EraseScreen
-	InsertSpace
+	EraseLine   = Code("EraseLine")
+	EraseScreen = Code("EraseScreen")
+	InsertSpace = Code("InsertSpace")
 
-	MoveRight
-	Delete
+	MoveRight = Code("MoveRight")
+	Delete    = Code("Delete")
 )
 
 type parser struct {
@@ -59,12 +59,13 @@ func (t *parser) parse(r rune) control {
 			t.escaping = true
 			return control{code: Skip}
 		case AsciiBS:
-			return control{code: Backspace}
-		case AsciiLF:
-			return control{code: Skip}
-		//	return LINEFEED
+			return control{code: MoveLeft}
 		case AsciiCR:
-			return control{code: NewLine}
+			return control{code: CarriageReturn}
+		case AsciiLF:
+			fallthrough
+		case AsciiBell:
+			return control{code: Skip}
 		}
 		return control{code: Character}
 	}
@@ -81,30 +82,30 @@ func (t *parser) parse(r rune) control {
 		if groups[1] == ">" {
 			code = EraseScreen
 		}
-	} else if len(groups[6]) > 0 {
-		switch groups[6] {
+	} else if len(groups[7]) > 0 {
+		switch groups[7] {
 		case "K":
 			code = EraseLine
 		case "J":
 			code = EraseScreen
 		case "C":
-			code = InsertSpace
-		case "P":
 			code = MoveRight
-		case "@":
+		case "P":
 			code = Delete
+		case "@":
+			code = InsertSpace
 		}
 	}
 	params := make([]int, 0)
-	if len(groups[3]) > 0 {
-		p, err := strconv.Atoi(groups[3])
+	if len(groups[4]) > 0 {
+		p, err := strconv.Atoi(groups[4])
 		if err != nil {
 			panic(err)
 		}
 		params = append(params, p)
 	}
-	if len(groups[4]) > 0 {
-		for _, p := range strings.Split(groups[4], ";") {
+	if len(groups[5]) > 0 {
+		for _, p := range strings.Split(groups[5], ";") {
 			if len(p) > 0 {
 				p, err := strconv.Atoi(p)
 				if err != nil {

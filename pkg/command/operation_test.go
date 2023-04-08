@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/zoetrope/gh-mop/pkg/github"
 	"gopkg.in/h2non/gock.v1"
 )
 
@@ -19,7 +20,8 @@ func TestGetOperation(t *testing.T) {
 		Reply(200).
 		JSON(operationResponse)
 
-	op, err := GetOperation("zoetrope", "gh-mop", 9999)
+	client, err := github.NewClient("zoetrope", "gh-mop")
+	op, err := GetOperation(client, 9999)
 	assert.NoError(t, err)
 	assert.True(t, gock.IsDone())
 	assert.Equal(t, 3, len(op.Commands))
