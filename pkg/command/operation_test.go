@@ -13,6 +13,7 @@ import (
 var operationResponse []byte
 
 func TestGetOperation(t *testing.T) {
+	stubConfig(t)
 	t.Cleanup(gock.Off)
 
 	gock.New("https://api.github.com").
@@ -21,6 +22,8 @@ func TestGetOperation(t *testing.T) {
 		JSON(operationResponse)
 
 	client, err := github.NewClient("zoetrope", "gh-mop")
+	assert.NoError(t, err)
+
 	op, err := GetOperation(client, 9999)
 	assert.NoError(t, err)
 	assert.True(t, gock.IsDone())

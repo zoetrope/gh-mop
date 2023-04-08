@@ -1,0 +1,3 @@
+[gh-mop#1:Step0]$ kubectl get pod
+[gh-mop#1:Step0]$ next
+[gh-mop#1:Step1]$

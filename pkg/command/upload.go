@@ -23,6 +23,9 @@ func UploadResult(client *github.Client, issue int, filepath string, offset int6
 	}
 
 	length := int64(len(content))
+	if offset > length {
+		return "", 0, fmt.Errorf("offset is too large")
+	}
 	content = content[offset:]
 
 	comment := formatAsCodeBlock(content)
