@@ -27,6 +27,9 @@ func UploadResult(client *github.Client, issue int, filepath string, offset int6
 		return "", 0, fmt.Errorf("offset is too large")
 	}
 	content = content[offset:]
+	if len(content) == 0 {
+		return "", 0, fmt.Errorf("no content to upload")
+	}
 
 	comment := formatAsCodeBlock(content)
 	url, err := client.PostComment(issue, comment)

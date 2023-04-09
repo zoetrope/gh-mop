@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -42,8 +43,17 @@ Constraints:
 		if err != nil {
 			return err
 		}
-		fmt.Println(url)
-		fmt.Println(offset)
+		j, err := json.Marshal(struct {
+			URL    string `json:"url"`
+			Offset int64  `json:"offset"`
+		}{
+			URL:    url,
+			Offset: offset,
+		})
+		if err != nil {
+			return err
+		}
+		fmt.Println(string(j))
 		return nil
 	},
 }

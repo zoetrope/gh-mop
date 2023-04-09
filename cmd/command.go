@@ -35,6 +35,12 @@ Constraints:
 		}
 
 		index, err := strconv.Atoi(args[1])
+		if err != nil {
+			return err
+		}
+		if index >= len(op.Commands) {
+			return fmt.Errorf("command index is too large")
+		}
 		fmt.Print(op.Commands[index])
 		return nil
 	},
