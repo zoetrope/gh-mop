@@ -1,7 +1,8 @@
 #!/bin/bash
 
-GH_MOP="go run main.go --config=config.json"
-# GH_MOP="gh mop"
+MOP_CONFIG="config.json"
+GH_MOP="go run main.go --config=${MOP_CONFIG}"
+# GH_MOP="gh mop --config=${MOP_CONFIG}"
 
 # Start an operation.
 # $1: The issue number for the operation.
@@ -12,28 +13,83 @@ function mop-start() {
   fi
 
   if [ -n "$MOP_ISSUE" ]; then
-    echo "Error: The operation is already started."
+    echo "Error: The operation is already started. Issue: $MOP_ISSUE."
     return 1
   fi
 
-  export MOP_REPO=$(cat config.json | jq -r .repository)
-  export MOP_DATADIR=$(cat config.json | jq -r .datadir)
+  if [ ! -f $MOP_CONFIG ]; then
+    echo "Error: The config file \"$MOP_CONFIG\" is not found."
+    return 1
+  fi
+
+  export MOP_REPO=$(cat $MOP_CONFIG | jq -r .repository)
+  if [ -z "$MOP_REPO" ]; then
+    echo "Error: The repository name is not set in the config file."
+    clear-mop
+    return 1
+  fi
+  export MOP_DATADIR=$(cat $MOP_CONFIG | jq -r .datadir)
+  if [ -z "$MOP_DATADIR" ]; then
+    echo "Error: The data directory is not set in the config file."
+    clear-mop
+    return 1
+  fi
   export MOP_ISSUE=$1
   export MOP_STEP=0
 
+  mkdir -p ${MOP_DATADIR}/${MOP_REPO}/${MOP_ISSUE} || return $?
+
   $GH_MOP operation $MOP_ISSUE
+  status=$?
+  if [ $status -ne 0 ]; then
+    clear-mop
+    return $status
+  fi
+  export MOP_COMMAND_COUNT=$(cat ${MOP_DATADIR}/${MOP_REPO}/${MOP_ISSUE}/operation.json | jq '.commands | length')
+
   script -q -f -a ${MOP_DATADIR}/${MOP_REPO}/${MOP_ISSUE}/typescript.txt
+  status=$?
+  if [ $status -ne 0 ]; then
+    clear-mop
+    return $status
+  fi
 }
+
+# Clear environment variables and functions for mop.
+function clear-mop() {
+  unset MOP_REPO
+  unset MOP_DATADIR
+  unset MOP_ISSUE
+  unset MOP_STEP
+  unset MOP_COMMAND_COUNT
+
+  unset -f next
+  unset -f prev
+  unset -f insert
+  unset -f upload
+  unset -f list
+  unset -f utilities
+  unset -f help
+}
+
 
 if [ -n "$MOP_ISSUE" ]; then
   export PS1="[\${MOP_REPO}#\${MOP_ISSUE}:Step\${MOP_STEP}]$ "
   # Move to the next step in the operation.
   function next() {
+    if [ $MOP_STEP -eq $(($MOP_COMMAND_COUNT - 1)) ]; then
+      echo "The last step is reached."
+      return 1
+    fi
     MOP_STEP=$(($MOP_STEP + 1))
   }
 
   # Move to the previous step in the operation.
   function prev() {
+    if [ $MOP_STEP -eq 0 ]; then
+      echo "The first step is reached."
+      return 1
+    fi
     MOP_STEP=$(($MOP_STEP - 1))
   }
 
