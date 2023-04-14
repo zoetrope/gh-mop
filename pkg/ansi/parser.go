@@ -10,7 +10,7 @@ import (
 var escapeSequenceRegex *regexp.Regexp
 
 func init() {
-	escapeSequenceRegex = regexp.MustCompile(`^([0-9A-Z>])|(]\d+;)|\[([?=]?)(\d+)?((;\d)*)([a-zA-Z@])$`)
+	escapeSequenceRegex = regexp.MustCompile(`^([0-9A-Z>])|(]\d+;)|\[([?=]?)(\d+)?((;\d+)*)([a-zA-Z@])$`)
 }
 
 const (

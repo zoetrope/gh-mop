@@ -96,7 +96,7 @@ func ExtractCommands(markdownText string, getContent getContentFn, readIssues []
 					line := lines.At(i)
 					lineText := strings.TrimSpace(markdownText[line.Start:line.Stop])
 					if strings.HasPrefix(lineText, "ref: #") {
-						issue, err := strconv.Atoi(strings.TrimPrefix(lineText, "ref: #"))
+						issue, err := strconv.Atoi(strings.TrimPrefix(lineText, "ref: #")) //TODO: Fix
 						if err != nil {
 							return ast.WalkStop, err
 						}

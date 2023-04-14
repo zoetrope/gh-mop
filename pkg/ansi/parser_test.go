@@ -15,16 +15,51 @@ func TestParse(t *testing.T) {
 		expect []control
 	}{
 		{
-			name:  "simple",
+			name:  "erase screen",
 			input: "\x1b[2J",
 			expect: []control{
 				{code: EraseScreen, params: []int{2}},
 			},
 		},
+		{
+			name:  "remove 4 characters",
+			input: "\b\x1b[K\b\x1b[K\b\x1b[K\b\x1b[K",
+			expect: []control{
+				{code: MoveLeft},
+				{code: EraseLine, params: []int{}},
+				{code: MoveLeft},
+				{code: EraseLine, params: []int{}},
+				{code: MoveLeft},
+				{code: EraseLine, params: []int{}},
+				{code: MoveLeft},
+				{code: EraseLine, params: []int{}},
+			},
+		},
+		{
+			name:  "characters",
+			input: "abc\x1b[Kdef\x1b[0mghi",
+			expect: []control{
+				{code: Character}, // a
+				{code: Character}, // b
+				{code: Character}, // c
+				{code: EraseLine, params: []int{}},
+				{code: Character}, // d
+				{code: Character}, // e
+				{code: Character}, // f
+				// skip \x1b[0m
+				{code: Character}, // g
+				{code: Character}, // h
+				{code: Character}, // i
+			},
+		},
+		{
+			name:  "multiple parameters",
+			input: "\x1b[10;20;30@",
+			expect: []control{
+				{code: InsertSpace, params: []int{10, 20, 30}},
+			},
+		},
 	}
-
-	//input := "abc\x1b[2Jdef\x1b[0mghi"
-	//input := "\x1b[2J"
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
