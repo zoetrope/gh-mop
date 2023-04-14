@@ -144,7 +144,9 @@ if [ -n "$MOP_ISSUE" ]; then
 
   # List the commands in the current operation.
   function list() {
-    echo "list"
+    local command=$($GH_MOP list $MOP_ISSUE)
+    READLINE_LINE="$command"
+    let READLINE_POINT+=${#command}
   }
 
   # Search for a command from the snippet issue.
