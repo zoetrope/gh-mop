@@ -4,8 +4,8 @@ MOP_CONFIG="$HOME/.mop.json"
 GH_MOP="gh mop --config=${MOP_CONFIG}"
 
 # For development
-MOP_CONFIG=".mop.json"
-GH_MOP="go run main.go --config=${MOP_CONFIG}"
+# MOP_CONFIG=".mop.json"
+# GH_MOP="go run main.go --config=${MOP_CONFIG}"
 
 # Start an operation.
 # $1: The issue number for the operation.
