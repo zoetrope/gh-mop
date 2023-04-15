@@ -1,0 +1,25 @@
+Script started on 2023-04-01 23:13:51+09:00 [TERM="xterm-256color" TTY="/dev/pts/7" COLUMNS="252" LINES="61"]
+[gh-mop#1:Step0]$ kubectl get pod
+No resources found in default namespace.
+[gh-mop#1:Step0]$ upload
+https://github.com/zoetrope/gh-mop/issues/1#issuecomment-1492982887
+229
+[gh-mop#1:Step0]$ next
+[gh-mop#1:Step1]$ kubectl -n kube-system get dep
+error: the server doesn't have a resource type "dep"
+[gh-mop#1:Step1]$ kubectl -n kube-system get deployment
+NAME      READY   UP-TO-DATE   AVAILABLE   AGE
+coredns   2/2     2            2           10h
+[gh-mop#1:Step1]$ upload
+https://github.com/zoetrope/gh-mop/issues/1#issuecomment-1492983026
+664
+[gh-mop#1:Step1]$ next
+[gh-mop#1:Step2]$ kubectl get svc -n default \
+    -o yaml \
+    --show-managed-fields^C
+[gh-mop#1:Step2]$ watch kubectl get pod -w
+[gh-mop#1:Step2]$ watch kubectl get pod
+[gh-mop#1:Step2]$ upload
+https://github.com/zoetrope/gh-mop/issues/1#issuecomment-1492983112
+1095
+[gh-mop#1:Step2]$ 

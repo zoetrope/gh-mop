@@ -1,0 +1,25 @@
+Script started on 2023-04-01 23:13:51+09:00 [TERM="xterm-256color" TTY="/dev/pts/7" COLUMNS="252" LINES="61"]
+[gh-mop#1:Step0]$ [K[gh-mop#1:Step0]$ kubectl get pod
+No resources found in default namespace.
+[gh-mop#1:Step0]$ upload
+https://github.com/zoetrope/gh-mop/issues/1#issuecomment-1492982887
+229
+[gh-mop#1:Step0]$ next
+[gh-mop#1:Step1]$ nextuploadkubectl get pod[9Pupload[2Pnext[K[K[gh-mop#1:Step1]$ kubectl get deployment[K[K[K[K[K[K[K[1@-[1@n[1@ [1@s[1@a[1P[1P[1@k[1@u[1@b[1@e[1@-[1@s[1@y[1@s[1@t[1@e[1@m[1@ [C[C[C[C[C[C[C
+error: the server doesn't have a resource type "dep"
+[gh-mop#1:Step1]$ kubectl -n kube-system get deployment
+NAME      READY   UP-TO-DATE   AVAILABLE   AGE
+coredns   2/2     2            2           10h
+[gh-mop#1:Step1]$ upload
+https://github.com/zoetrope/gh-mop/issues/1#issuecomment-1492983026
+664
+[gh-mop#1:Step1]$ next
+[gh-mop#1:Step2]$ [K[gh-mop#1:Step2]$ kubectl get svc -n default \
+    -o yaml \
+    --show-managed-fields^C
+[gh-mop#1:Step2]$ kube[K[K[K[Kwatch kubectl get pod -w
+[?1049h[22;0;0t[1;61r(B[m[4l[?7h[61;1H[?1049l[23;0;0t[?1l>[gh-mop#1:Step2]$ watch kubectl get pod -w[K[K[K
+[?1049h[22;0;0t[1;61r(B[m[4l[?7h[H[2JEvery 2.0s: kubectl get pod[1;222Hnatte: Sat Apr  1 23:14:53 2023[3;1HNo resources found in default namespace.[61;252H[1;247H5[61;252H[61;1H[?1049l[23;0;0t[?1l>[gh-mop#1:Step2]$ upload
+https://github.com/zoetrope/gh-mop/issues/1#issuecomment-1492983112
+1095
+[gh-mop#1:Step2]$ 

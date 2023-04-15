@@ -1,0 +1,2 @@
+zoetro@ubuntu:~/go/src/github.com/zoetrope/gh-mop$ hostname
+ubuntu

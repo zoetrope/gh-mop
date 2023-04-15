@@ -1,0 +1,2 @@
+]0;zoetro@ubuntu: ~/go/src/github.com/zoetrope/gh-mop[01;32mzoetro@ubuntu[00m:[01;34m~/go/src/github.com/zoetrope/gh-mop[00m$ hoge[C[C[C[C[K[K[K[Kfuga[1Puga[1Pga[1Pa[Khostname
+ubuntu
