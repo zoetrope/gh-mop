@@ -45,6 +45,7 @@ const (
 type parser struct {
 	buffer   bytes.Buffer
 	escaping bool
+	osc      bool
 }
 
 type control struct {
@@ -53,6 +54,16 @@ type control struct {
 }
 
 func (t *parser) parse(r rune) control {
+	if t.osc {
+		switch r {
+		case AsciiBell:
+			t.osc = false
+			return control{code: Skip}
+		default:
+			return control{code: Skip}
+		}
+	}
+
 	if !t.escaping {
 		switch r {
 		case AsciiEsc:
@@ -82,6 +93,8 @@ func (t *parser) parse(r rune) control {
 		if groups[1] == ">" {
 			code = EraseScreen
 		}
+	} else if len(groups[2]) > 0 {
+		t.osc = true
 	} else if len(groups[7]) > 0 {
 		switch groups[7] {
 		case "K":
