@@ -13,3 +13,4 @@ registries:
 packages:
 - name: spf13/cobra-cli@v1.3.0
 - name: cli/cli@v2.25.0
+- name: charmbracelet/vhs@v0.4.0

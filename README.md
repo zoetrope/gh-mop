@@ -9,6 +9,8 @@ mop is an open-source tool designed to support manual operations using GitHub Is
 - Upload the execution results as a comment to the Issue
 - Search and complete predefined utility commands 
 
+![demo](./demo.gif)
+
 ## Requirements
 
 Before using mop, ensure the following tools are installed:
